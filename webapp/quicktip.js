@@ -78,14 +78,15 @@
     if (dlg && tip.parentElement !== dlg) dlg.appendChild(tip); else if (!dlg && tip.parentElement !== document.body) document.body.appendChild(tip);
     tip.classList.remove('on');
     tip.style.left = '0px'; tip.style.top = '0px';
-    const r = el.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    // inside a transformed container (e.g. a dialog) 'fixed' is relative to that container: measure its origin
+    const r = el.getBoundingClientRect(), t = tip.getBoundingClientRect(), ox = t.left, oy = t.top;
     const vw = innerWidth, vh = innerHeight, m = 10;
     let top = r.bottom + 8;
     if (top + t.height > vh - m) top = r.top - t.height - 8;
     if (top < m) top = Math.min(vh - t.height - m, r.bottom + 8);
     let left = r.left + r.width / 2 - t.width / 2;
     left = Math.max(m, Math.min(vw - t.width - m, left));
-    tip.style.left = `${Math.round(left)}px`; tip.style.top = `${Math.round(top)}px`;
+    tip.style.left = `${Math.round(left - ox)}px`; tip.style.top = `${Math.round(top - oy)}px`;
     requestAnimationFrame(() => tip.classList.add('on'));
   }
   function hide(delay = 0) {

@@ -4,6 +4,8 @@ Browser-App ohne Build-Schritt und ohne Abhängigkeiten. Liest ALFANO-7-Sessions
 
 ## Starten
 
+**Online (empfohlen, auch iPad):** https://roonster78.github.io/mad-performance/webapp/ – beim ersten Öffnen werden Vincents 25 Sessions aus South Garda (28.02.–14.03.2026) als Beispiel geladen. Am iPad *Teilen → Zum Home-Bildschirm*.
+
 ```sh
 cd webapp
 python3 -m http.server 8000
@@ -12,6 +14,12 @@ python3 -m http.server 8000
 
 Einfachster Weg auf dem Mac: `mad-telemetrie.zip` entpacken und `index.html` in Chrome doppelklicken (dann fehlen nur die Beispieldaten). Das Satellitenbild braucht Internet; in der claude.ai-Vorschau ist es gesperrt, weil diese keine externen Kartendaten lädt.
 Online-Version: https://claude.ai/artifact/7b8b2XMARWXNv4XUUnEDMD
+
+## iPad und QuickTips (Stand 09.11.2026)
+
+- Kurven: antippen oder seitlich wischen setzt den Cursor, zwei Finger spreizen zoomt, dazu **+ / −** in der Werkzeugleiste. Strecke: ziehen verschiebt, zwei Finger zoomen, Antippen der Linie setzt den Cursor.
+- QuickTips auf jeder Funktion: Maus kurz ruhen lassen, am iPad lange drücken, oder **?** für den Hilfe-Modus.
+- Theoretische Runde zählt nur repräsentative Runden (≤ 107 % der Bestzeit); Aus- und Einfahrrunden mit falsch gesetzten Sektoren verfälschen sie nicht mehr.
 
 ## Was drin ist (Stand v4, 20.10.2026)
 
@@ -38,7 +46,8 @@ Nicht nachgebaut, weil die Sensoren fehlen: Lambda, Reifendruck/-temperatur, Len
 
 - `index.html`, `app.css`, `app.js`: die App
 - `assets/`: MAD- und Stiffel-Racing-Logo (wie in der Boxenmauer)
-- `samples/samples.json`: drei echte Sessions (2× Wackersdorf, 1× Ampfing) als Base64 für die Demo
+- `samples/samples.json`: alle 25 South-Garda-Sessions von Vincent als Base64 für die Demo
+- `tips.js`, `quicktip.js`: QuickTips; `manifest.webmanifest`: Home-Bildschirm-App
 
 ## Bekannte Grenzen
 

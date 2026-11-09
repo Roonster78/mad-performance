@@ -4,6 +4,10 @@ Anpassbares Dashboard für Trainings- und Renntage: große Uhr, Live-Regenradar 
 
 ## Starten
 
+**Online (empfohlen, auch iPad):** https://roonster78.github.io/mad-performance/dashboard/ öffnen. Auf dem iPad in Safari *Teilen → Zum Home-Bildschirm*, dann läuft die Boxenmauer wie eine App im Vollbild. Oben rechts führt *Telemetrie* direkt zur Telemetrie-App.
+
+**Offline auf dem Mac:**
+
 1. `mad-boxenmauer.zip` entpacken.
 2. `index.html` in Chrome, Edge oder Safari öffnen (Doppelklick genügt, kein Server nötig).
 3. Für Radar, Satellitenbild und Wetter braucht der Rechner Internet (z. B. Hotspot an der Strecke). Uhr, Zeitplan, Checkliste und Notizen laufen auch offline.
@@ -18,6 +22,18 @@ Alle Eingaben (Layout, Zeitpläne, Einstellungen) bleiben im Browser des jeweili
 - **Vollbild**: Das Symbol ganz rechts oben (oder Taste **F**) schaltet wie bei YouTube auf echtes Vollbild, Esc oder nochmal F beendet es. Im Vollbild verschwindet die obere Leiste nach 3 Sekunden ohne Mausbewegung und kommt bei Bewegung oder Antippen zurück. Das MAD-Logo mit „powered by SR“ steht im Vollbild dauerhaft in einer Leiste am unteren Rand. Auf dem iPhone bietet Safari kein Vollbild für Webseiten, dort fehlt der Knopf; stattdessen *Teilen → Zum Home-Bildschirm*.
 - **Ton an** einmal antippen, damit Erinnerungen piepen. *Einstellungen → Systembenachrichtigungen erlauben* zeigt sie zusätzlich als macOS-/Windows-Mitteilung.
 - **Eigene Klasse** in den Einstellungen (z. B. `OK Junior`): diese Turns werden markiert (★), der Filter *Meine Klasse* zeigt nur sie plus Pflichttermine, und auf Wunsch wird auch an sie erinnert.
+
+## QuickTips
+
+Jede Funktion hat eine kurze Erklärung. Am Mac erscheint sie, wenn die Maus kurz auf einem Knopf ruht. Am iPad den Knopf etwa eine halbe Sekunde gedrückt halten; die Funktion wird dann nicht ausgelöst. Das **?** oben rechts schaltet den Hilfe-Modus ein: Alles mit Erklärung ist rot gestrichelt umrandet, und jedes Antippen zeigt nur die Erklärung. Nochmal **?** oder Esc beendet ihn.
+
+## Vorbereitete Veranstaltung: 54. Trofeo delle Industrie, Lonato (12.–15.11.2026)
+
+- Offizieller Zeitplan *Programma ufficiale* Version 1 (Stand 06.11.2026) für alle vier Tage und alle fünf Klassen ist hinterlegt. Vincent **#445** und Ben Goetz **#453** fahren OKN, beide mit ungerader Nummer: *Meine Klasse* zeigt genau ihre Turns (freies Training ungerade, offizielles Training, Zeittraining, Heats, Vorfinale, Finale mit Vorstart) plus die Pflichttermine, die OKN betreffen (Papierabnahme Do 14:50, Briefing Fr 09:40, Reifenausgabe Do 14–18 Uhr).
+- Auf einem neuen Gerät wird die Veranstaltung beim ersten Öffnen automatisch geladen (Strecke South Garda, Renntag-Layout, Klasse, Startnummern). Sonst im Tageszeitplan *Veranstaltung laden*.
+- **Livetiming:** Apex Timing South Garda (dieselbe Quelle wie youcrono.com/LiveLonato). **Livestream:** offizieller YouTube-Stream des Veranstalters, eingebettet im Widget *Livestream* (nur in der Online-Version, YouTube erlaubt keine Einbettung aus einer lokalen Datei). **Starterfeld:** vorläufige OKN-Nennliste vom 06.11.2026 (72 Fahrer) mit Teams, Chassis und Motoren.
+- Links im Zeitplan-Widget: Zeitplan-PDF, Nennliste-PDF, Ausschreibung, Aushang, Livetiming, Livestream, Streckenplan.
+- Die Heat-Gruppen (A–D) stehen erst nach dem Zeittraining fest, deshalb sind alle OKN-Heats als eigene Turns markiert.
 
 ## Vorbereitete Veranstaltung: Eifel-Erft-Cup Finale Kerpen (24.–25.10.2026)
 
@@ -53,4 +69,4 @@ Alle Eingaben (Layout, Zeitpläne, Einstellungen) bleiben im Browser des jeweili
 
 ## Dateien
 
-`index.html`, `dashboard.css`, `dashboard.js`, `tracks.js` (Strecken mit GPS-Verlauf, aus den .alf2-Dateien erzeugt), `vendor/leaflet/` (Kartenbibliothek) und `vendor/pdfjs/` (PDF-Leser), beide lokal mitgeliefert.
+`index.html`, `dashboard.css`, `dashboard.js`, `tracks.js` (Strecken mit GPS-Verlauf, aus den .alf2-Dateien erzeugt), `entries.js` (Nennlisten), `tips.js` und `quicktip.js` (QuickTips), `manifest.webmanifest` (Home-Bildschirm-App), `vendor/leaflet/` (Kartenbibliothek) und `vendor/pdfjs/` (PDF-Leser), beide lokal mitgeliefert.
