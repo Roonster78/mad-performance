@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MAD Performance Karting</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MAD">
+<meta name="theme-color" content="#0c0f13">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" href="assets/icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,600;1,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root { --band: #0c0f13; --band-2: #1b2129; --line: #313a46; --fg: #e9edf2; --fg-2: #9ba6b4; --red: #ef2b33; --blue: #3d8bdb; --silver: #c7ccd3; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--band); color: var(--fg); font: 16px/1.5 "IBM Plex Sans", system-ui, sans-serif;
+    padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 32px max(20px, env(safe-area-inset-left)); }
+  header { display: flex; align-items: center; gap: 16px; padding-bottom: 18px; border-bottom: 4px solid transparent;
+    border-image: linear-gradient(100deg, var(--blue) 0 32%, var(--band) 32% 33%, var(--red) 33% 66%, var(--band) 66% 67%, var(--silver) 67%) 1; }
+  header img.mad { height: 56px; } header .claim { display: flex; align-items: center; gap: 8px; padding-left: 16px; border-left: 2px solid var(--line);
+    font: italic 600 16px/1 "Barlow Condensed", sans-serif; color: var(--silver); text-transform: uppercase; letter-spacing: .08em; }
+  header .claim img { height: 28px; }
+  h1 { font: italic 700 clamp(30px, 5vw, 52px)/1.05 "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .02em; margin: 36px 0 6px; }
+  p.lead { color: var(--fg-2); margin: 0 0 28px; max-width: 60ch; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; max-width: 1100px; }
+  a.tile { display: block; text-decoration: none; color: inherit; background: var(--band-2); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px 24px;
+    border-top: 5px solid var(--c); transition: transform .15s ease, border-color .15s ease; }
+  a.tile:hover, a.tile:focus-visible { transform: translateY(-2px); border-color: var(--c); }
+  a.tile h2 { font: italic 700 32px/1 "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .03em; margin: 0 0 10px; display: flex; align-items: center; gap: 10px; }
+  a.tile h2::before { content: ""; width: 7px; height: 22px; background: var(--c); transform: skewX(-20deg); }
+  a.tile p { margin: 0; color: var(--fg-2); }
+  a.tile ul { margin: 12px 0 0; padding-left: 18px; color: var(--fg); font-size: 15px; }
+  footer { margin-top: 32px; color: var(--fg-2); font-size: 13px; max-width: 70ch; }
+</style>
+</head>
+<body>
+<header>
+  <img class="mad" src="assets/mad-logo.png" alt="MAD Performance" width="128" height="56">
+  <span class="claim">powered by <img src="assets/sr-logo.png" alt="Stiffel Racing" width="62" height="28"></span>
+</header>
+<h1>Team-Dashboard</h1>
+<p class="lead">Zwei Werkzeuge, ein Design: die Boxenmauer für den Renntag und die Telemetrie für die Analyse der ALFANO-Daten. Läuft im Browser auf iPad, Mac und PC, ohne Installation.</p>
+<div class="tiles">
+  <a class="tile" href="dashboard/index.html" style="--c: var(--red)">
+    <h2>Boxenmauer</h2>
+    <p>Alles für Training und Rennen auf einem Bildschirm.</p>
+    <ul><li>Uhr, Countdown zum nächsten Turn, Erinnerungen</li><li>Regenradar und Prognose für die Strecke</li><li>Zeitplan, Livetiming, Livestream, Starterfeld</li></ul>
+  </a>
+  <a class="tile" href="webapp/index.html" style="--c: var(--blue)">
+    <h2>Telemetrie</h2>
+    <p>ALFANO-7-Sessions direkt einlesen und auswerten, wie in ADA.</p>
+    <ul><li>Runden-Overlay bis 6 Runden, Δ Zeit, Sektoren</li><li>Strecke auf Satellitenbild, Wiedergabe</li><li>Drehzahl, Motor, G-G, Wochenend-Vergleich</li></ul>
+  </a>
+</div>
+<footer>Tipp fürs iPad: in Safari <b>Teilen → Zum Home-Bildschirm</b>, dann startet das Dashboard wie eine App im Vollbild. Daten und Einstellungen bleiben auf dem jeweiligen Gerät.</footer>
+</body>
+</html>
