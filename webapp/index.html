@@ -285,6 +285,10 @@
 <script src="tips.js"></script>
 <script src="quicktip.js"></script>
 <script src="app.js"></script>
+<script>
+  // offline cache for the online version (GitHub Pages); does nothing for a local file
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {});
+</script>
 <!--APP-END-->
 </body>
 </html>
