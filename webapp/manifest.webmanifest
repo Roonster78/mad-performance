@@ -1,0 +1,3 @@
+{ "name": "MAD Telemetrie", "short_name": "Telemetrie", "start_url": "./index.html", "scope": "../", "display": "standalone",
+  "orientation": "any", "background_color": "#0c0f13", "theme_color": "#0c0f13", "lang": "de",
+  "icons": [{ "src": "assets/icon-180.png", "sizes": "180x180", "type": "image/png" }, { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }] }

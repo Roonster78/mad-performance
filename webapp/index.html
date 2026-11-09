@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--APP-START-->
+<title>MAD Telemetrie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Telemetrie">
+<meta name="theme-color" content="#0c0f13">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/mad-logo.png" alt="MAD Performance" class="logo-mad" width="101" height="44">
+    <span class="claim">powered by <img src="assets/sr-logo.png" alt="Stiffel Racing" class="logo-sr" width="53" height="24"></span>
+    <span class="app-name">Telemetrie</span>
+  </div>
+  <div class="top-actions">
+    <button id="btn-drivers" class="btn ghost" type="button">Fahrer zuordnen</button>
+    <label class="btn primary" for="file-input">.alf2 importieren</label>
+    <input id="file-input" type="file" multiple hidden>
+    <a id="nav-app" class="btn ghost app-link" href="../dashboard/index.html">Boxenmauer</a>
+    <button id="btn-help" class="btn ghost qt-help-btn" type="button" aria-pressed="false" aria-label="QuickTips">?</button>
+    <button id="btn-fs" class="btn ghost icon" type="button" title="Vollbild (F)" aria-label="Vollbild" aria-pressed="false" hidden>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="fs-in" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/><path class="fs-out" d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg>
+    </button>
+  </div>
+</header>
+
+<div id="banner" class="banner" hidden></div>
+
+<main class="layout">
+  <aside class="widget library">
+    <div class="w-head"><span class="w-title">Sessions</span><span class="muted small" id="lib-count"></span></div>
+    <div class="lib-filters">
+      <label class="field"><span>Strecke</span><select id="f-track"></select></label>
+      <label class="field"><span>Fahrer</span><select id="f-driver"></select></label>
+      <label class="field"><span>Klasse</span><select id="f-cat"></select></label>
+      <label class="field"><span>Sortierung</span><select id="f-sort"><option value="date">Neueste zuerst</option><option value="best">Schnellste zuerst</option></select></label>
+      <label class="field"><span>Zeitraum</span><select id="f-date"><option value="">Alle</option><option value="0">Heute</option><option value="3">Letzte 3 Tage</option><option value="30">Letzte 30 Tage</option></select></label>
+      <label class="check"><input type="checkbox" id="f-fav"> nur Favoriten</label>
+    </div>
+    <div id="lib-list" class="lib-list"></div>
+    <div class="lib-foot">
+      <span class="muted small">Häkchen = Runde ins Overlay (max. 6)</span>
+      <button id="btn-sample" class="link" type="button">Beispieldaten</button>
+    </div>
+  </aside>
+
+  <section class="detail" id="detail">
+    <div id="empty" class="widget empty">
+      <h2>ALFANO-Sessions hier ablegen</h2>
+      <p>Zieh eine oder mehrere <code>.alf2</code>-Dateien aus ADA in dieses Fenster oder nutze „.alf2 importieren“. Die Daten bleiben in diesem Browser gespeichert.</p>
+    </div>
+
+    <div id="session" hidden>
+      <div class="sess-head">
+        <div class="sess-title">
+          <div class="eyebrow" id="s-eyebrow"></div>
+          <h1 id="s-track"></h1>
+          <div class="sess-meta">
+            <label class="driver-edit" for="s-driver">Fahrer
+              <input id="s-driver" type="text" list="driver-list" autocomplete="off">
+            </label>
+            <datalist id="driver-list"></datalist>
+            <span id="s-tags"></span>
+            <button type="button" class="btn small ghost" id="s-fav" aria-pressed="false">&#9734; Favorit</button>
+          </div>
+        </div>
+        <div class="kpis" id="s-kpis"></div>
+      </div>
+
+      <div class="main-grid">
+        <div class="widget chart-w">
+          <div class="w-head">
+            <span class="w-title">Kurven</span>
+            <div class="w-tools toolbar">
+              <div class="pop-wrap">
+                <button type="button" class="btn small" id="btn-channels" aria-expanded="false">Kanäle</button>
+                <div class="pop" id="pop-channels" hidden></div>
+              </div>
+              <div class="seg" role="group" aria-label="X-Achse">
+                <button type="button" id="x-dist" aria-pressed="true">Distanz</button>
+                <button type="button" id="x-time" aria-pressed="false">Zeit</button>
+              </div>
+              <button type="button" class="btn small icon" id="step-back" title="0,1 s zurück" aria-label="0,1 s zurück">&#9664;</button>
+              <button type="button" class="btn small primary" id="play">&#9654; Wiedergabe</button>
+              <button type="button" class="btn small icon" id="step-fwd" title="0,1 s vor" aria-label="0,1 s vor">&#9654;</button>
+              <select id="play-speed" aria-label="Wiedergabetempo" class="small-sel">
+                <option value="0.5">&times;0,5</option><option value="1" selected>&times;1</option><option value="2">&times;2</option><option value="4">&times;4</option>
+              </select>
+              <div class="seg" role="group" aria-label="Zoom">
+                <button type="button" id="zoom-in-x" aria-label="Kurven hineinzoomen">+</button>
+                <button type="button" id="zoom-out-x" aria-label="Kurven herauszoomen">&minus;</button>
+              </div>
+              <button type="button" class="btn small ghost" id="zoom-reset" title="Ganze Runde zeigen">Zoom zurück</button>
+            </div>
+          </div>
+          <div class="w-body chart-body">
+            <div class="legend" id="legend"></div>
+            <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Position in der Runde">
+            <canvas id="chart" class="chart"></canvas>
+            <div class="table-wrap cursor-wrap"><table class="data cursor-table" id="cursor-table"></table></div>
+            <div class="math" id="math" hidden>
+              <div class="math-row">
+                <label class="field"><span>Name</span><input type="text" id="math-name" placeholder="Übersetzung"></label>
+                <label class="field"><span>Einheit</span><input type="text" id="math-unit" placeholder="km/h je 1000"></label>
+                <label class="field grow"><span>Formel</span><input type="text" id="math-expr" placeholder="speed / rpm * 1000"></label>
+                <button type="button" class="btn primary" id="math-save">Anlegen</button>
+              </div>
+              <div class="muted small">Variablen: speed (km/h), rpm, T1, T2 (°C), alt (m), gLat, gLong (g), acc (m/s²), dist (m), t (s). Funktionen wie abs, sqrt, max, min. <span id="math-err" class="err"></span></div>
+              <div id="math-list" class="math-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-col">
+          <div class="widget map-w">
+            <div class="w-head">
+              <span class="w-title">Strecke</span>
+              <div class="w-tools">
+                <select id="map-color" aria-label="Farbe der Strecke" class="small-sel">
+                  <option value="speed">Geschwindigkeit</option>
+                  <option value="rpm">Drehzahlband</option>
+                  <option value="pedal">Gas / Bremse</option>
+                  <option value="glat">Querbeschleunigung</option>
+                </select>
+                <div class="seg" role="group" aria-label="Kartenansicht">
+                  <button type="button" id="mv-sat" aria-pressed="true">Satellit</button>
+                  <button type="button" id="mv-plan" aria-pressed="false">Plan</button>
+                </div>
+              </div>
+            </div>
+            <div class="map-wrap">
+              <canvas id="map" class="map"></canvas>
+              <div class="map-ctrl">
+                <button type="button" id="z-in" aria-label="Hineinzoomen">+</button>
+                <button type="button" id="z-out" aria-label="Herauszoomen">&minus;</button>
+                <button type="button" id="z-fit" aria-label="Ganze Strecke zeigen">&#8634;</button>
+              </div>
+              <div class="attrib" id="attrib">Bild &copy; Esri, Maxar, Earthstar Geographics</div>
+              <div class="map-dist" id="map-dist"></div>
+            </div>
+            <div class="map-note" id="map-note" hidden></div>
+            <div class="ramp" id="ramp"></div>
+          </div>
+
+          <div class="widget g-w">
+            <div class="w-head"><span class="w-title">G-Kraft</span><span class="muted small">am Cursor</span></div>
+            <canvas id="gmini" class="gmini"></canvas>
+          </div>
+
+          <div class="widget sec-w">
+            <div class="w-head"><span class="w-title">Sektoren</span><span class="muted small" id="sec-theo"></span></div>
+            <div class="table-wrap"><table class="data" id="sec-table"></table></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget tabs-w">
+        <div class="tabs" role="tablist" id="tabs">
+          <button type="button" role="tab" data-tab="laps" class="on">Runden</button>
+          <button type="button" role="tab" data-tab="event">Wochenende</button>
+          <button type="button" role="tab" data-tab="maxmin">Max/Min</button>
+          <button type="button" role="tab" data-tab="rpm">Drehzahl</button>
+          <button type="button" role="tab" data-tab="power">Motor</button>
+          <button type="button" role="tab" data-tab="gg">G-G</button>
+          <button type="button" role="tab" data-tab="session">Session-Verlauf</button>
+          <button type="button" role="tab" data-tab="video">Video</button>
+          <button type="button" role="tab" data-tab="setup">Setup</button>
+        </div>
+
+        <div class="tab" id="tab-laps">
+          <canvas id="evo" class="evo" aria-label="Rundenzeiten-Verlauf"></canvas>
+          <div class="table-wrap"><table class="data laps" id="lap-table"></table></div>
+        </div>
+
+        <div class="tab" id="tab-event" hidden>
+          <div class="tab-ctrl">
+            <span class="muted small" id="event-title"></span>
+            <button type="button" class="btn small primary" id="event-cmp">Bestrunden vergleichen</button>
+          </div>
+          <canvas id="event-chart" class="evo" aria-label="Bestzeit je Session"></canvas>
+          <div class="table-wrap"><table class="data laps" id="event-table"></table></div>
+          <span class="muted small">Alle Sessions dieser Strecke an diesem Wochenende (±3 Tage). Zeile anklicken = Session öffnen. „Bestrunden vergleichen“ legt die schnellste Runde jeder Session übereinander (max. 6).</span>
+        </div>
+
+        <div class="tab" id="tab-maxmin" hidden>
+          <span class="muted small">Wert anklicken: Stelle wird auf Karte und in den Kurven markiert.</span>
+          <div class="table-wrap"><table class="data mm" id="mm-table"></table></div>
+        </div>
+
+        <div class="tab" id="tab-rpm" hidden>
+          <div class="tab-ctrl">
+            <label class="field inline"><span>Band</span>
+              <select id="rpm-bw"><option value="250">250</option><option value="500">500</option><option value="1000" selected>1000</option></select>
+            </label>
+            <label class="field inline"><span>Runden</span>
+              <select id="rpm-scope"><option value="sel">Ausgewählte Runden</option><option value="fast">Alle schnellen Runden der Session</option></select>
+            </label>
+          </div>
+          <canvas id="rpm-hist" class="tabcanvas"></canvas>
+          <span class="muted small">Zeitanteil je Drehzahlband. Referenzrunde grün (Beschleunigen) und rot (Verzögern), weitere Runden als Balken in ihrer Farbe. Band anklicken = auf der Karte hervorheben.</span>
+        </div>
+
+        <div class="tab" id="tab-power" hidden>
+          <canvas id="power-chart" class="tabcanvas"></canvas>
+          <div id="power-stats" class="stats"></div>
+          <span class="muted small">Mittlere Beschleunigung in Vollgasphasen je Drehzahl. Zeigt, wo Motor und Übersetzung ziehen; so vergleichst du Motoren oder Übersetzungen.</span>
+        </div>
+
+        <div class="tab" id="tab-gg" hidden>
+          <div class="gg-grid">
+            <canvas id="gg" class="tabcanvas square"></canvas>
+            <div id="gg-stats" class="stats"></div>
+          </div>
+        </div>
+
+        <div class="tab" id="tab-session" hidden>
+          <div class="tab-ctrl">
+            <label class="field inline"><span>Kanal oben</span><select id="ses-ch1"></select></label>
+            <label class="field inline"><span>Kanal unten</span><select id="ses-ch2"></select></label>
+          </div>
+          <canvas id="ses-chart" class="tabcanvas tall"></canvas>
+          <span class="muted small">Ganze Session über die Zeit, Runden als Felder unten. Zeigt, wie Wasser- und Abgastemperatur über den Lauf steigen.</span>
+        </div>
+
+        <div class="tab" id="tab-video" hidden>
+          <span class="muted small" id="video-hint">Pro Session ein GoPro- oder Handyvideo wählen, bis zur Ziellinie am Start der angezeigten Runde spulen und „Synchronisieren“ drücken. Danach läuft für jede ausgewählte Runde ein eigenes Video mit, wie in ADA. Die Videos bleiben auf deinem Gerät.</span>
+          <div class="videos" id="videos"></div>
+        </div>
+
+        <div class="tab" id="tab-setup" hidden>
+          <form id="setup-form" class="setup">
+            <label class="field"><span>Motor</span><input type="text" id="su-engine"></label>
+            <label class="field"><span>Übersetzung (Ritzel/Kettenrad)</span><input type="text" id="su-gear" placeholder="z. B. 11/80"></label>
+            <label class="field"><span>Reifen</span><input type="text" id="su-tyre"></label>
+            <label class="field"><span>Luftdruck vorne (bar)</span><input type="text" id="su-pf" inputmode="decimal"></label>
+            <label class="field"><span>Luftdruck hinten (bar)</span><input type="text" id="su-pr" inputmode="decimal"></label>
+            <label class="field"><span>Vergaser / Bedüsung</span><input type="text" id="su-carb"></label>
+            <label class="field"><span>Chassis / Spur / Sturz</span><input type="text" id="su-chassis"></label>
+            <label class="field"><span>Wetter / Strecke</span><input type="text" id="su-weather"></label>
+            <label class="field wide"><span>Notizen, Trainingsschwerpunkt</span><textarea id="su-notes" rows="4"></textarea></label>
+          </form>
+          <span class="muted small" id="setup-hint">Wird automatisch für die angezeigte Session gespeichert.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="dlg" class="dlg-back" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+    <h2 id="dlg-title">Fahrer zuordnen</h2>
+    <p class="muted">Name, wie er im ALFANO steht, und der richtige Fahrer. Gilt für alle Sessions mit diesem Namen; einzelne Sessions kannst du oben im Kopf ändern.</p>
+    <div id="dlg-rows" class="dlg-rows"></div>
+    <div class="dlg-actions">
+      <button id="dlg-cancel" class="btn ghost" type="button">Abbrechen</button>
+      <button id="dlg-save" class="btn primary" type="button">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<footer class="fs-brand" aria-hidden="true">
+  <img src="assets/mad-logo.png" alt="" class="logo-mad" width="101" height="44">
+  <span class="claim">powered by <img src="assets/sr-logo.png" alt="" class="logo-sr" width="53" height="24"></span>
+  <span class="fs-brand-app">Telemetrie</span>
+</footer>
+
+<div id="drop" class="drop" hidden><div>.alf2-Dateien loslassen</div></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="tips.js"></script>
+<script src="quicktip.js"></script>
+<script src="app.js"></script>
+<!--APP-END-->
+</body>
+</html>

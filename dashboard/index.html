@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--APP-START-->
+<title>MAD Boxenmauer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Boxenmauer">
+<meta name="theme-color" content="#0c0f13">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/mad-logo.png" alt="MAD Performance" class="logo-mad" width="101" height="44">
+    <span class="claim">powered by <img src="assets/sr-logo.png" alt="Stiffel Racing" class="logo-sr" width="53" height="24"></span>
+  </div>
+  <div class="top-controls">
+    <label class="field compact">
+      <span class="sr">Strecke</span>
+      <select id="track-select" title="Strecke"></select>
+    </label>
+    <div class="seg" role="group" aria-label="Tagesart">
+      <button type="button" data-mode="training">Training</button>
+      <button type="button" data-mode="race">Renntag</button>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="btn-sound" class="btn ghost" type="button" title="Erinnerungston">Ton aus</button>
+    <button id="btn-settings" class="btn ghost" type="button">Einstellungen</button>
+    <button id="btn-edit" class="btn primary" type="button">Anordnen</button>
+    <a id="nav-app" class="btn ghost app-link" href="../webapp/index.html">Telemetrie</a>
+    <button id="btn-help" class="btn ghost qt-help-btn" type="button" aria-pressed="false" aria-label="QuickTips">?</button>
+    <button id="btn-fs" class="btn ghost icon" type="button" title="Vollbild (F)" aria-label="Vollbild" aria-pressed="false" hidden>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="fs-in" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/><path class="fs-out" d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg>
+    </button>
+  </div>
+</header>
+
+<div id="alerts" class="alerts" aria-live="assertive"></div>
+
+<div id="edit-bar" class="edit-bar" hidden>
+  <span>Widget am Titel packen und ziehen, an der roten Ecke unten rechts die Größe ziehen. Die Kästchen zeigen das Raster, die rote Fläche, wo das Widget einrastet.</span>
+  <button id="btn-add" class="btn primary" type="button">Widget hinzufügen</button>
+  <button id="btn-reset" class="btn ghost" type="button">Standard-Layout</button>
+  <button id="btn-edit-done" class="btn" type="button">Fertig</button>
+</div>
+
+<main id="grid" class="grid"></main>
+
+<!-- Im Vollbild dauerhaft unten sichtbar -->
+<footer class="fs-brand" aria-hidden="true">
+  <div class="brand">
+    <img src="assets/mad-logo.png" alt="" class="logo-mad" width="101" height="44">
+    <span class="claim">powered by <img src="assets/sr-logo.png" alt="" class="logo-sr" width="53" height="24"></span>
+  </div>
+  <span class="fs-brand-app">Boxenmauer</span>
+</footer>
+
+<!-- Widget hinzufügen -->
+<dialog id="dlg-add" class="dlg">
+  <form method="dialog">
+    <h2>Widget hinzufügen</h2>
+    <div id="add-list" class="add-list"></div>
+    <div class="dlg-actions"><button class="btn" value="cancel">Schließen</button></div>
+  </form>
+</dialog>
+
+<!-- Einstellungen -->
+<dialog id="dlg-settings" class="dlg">
+  <form method="dialog" id="settings-form">
+    <h2>Einstellungen</h2>
+    <label class="field"><span>Eigene Klasse (für Hervorhebung und Erinnerungen)</span>
+      <input name="myClass" placeholder="z. B. OK Junior, X30 Junior"></label>
+    <label class="field"><span>Erinnerung vorher (Minuten)</span>
+      <input name="lead" type="number" min="0" max="180" step="5"></label>
+    <label class="field"><span>Unsere Startnummern oder Fahrernamen (Livetiming-Hervorhebung)</span>
+      <input name="myKarts" placeholder="z. B. 105, Stiffel"></label>
+    <label class="check"><input name="remindSessions" type="checkbox"> Auch an Fahrzeiten der eigenen Klasse erinnern</label>
+    <label class="check"><input name="rainAlert" type="checkbox"> Warnen, wenn Regen in der nächsten Stunde erwartet wird</label>
+    <div class="row-btns">
+      <button type="button" id="btn-notify" class="btn ghost">Systembenachrichtigungen erlauben</button>
+      <span id="notify-state" class="muted"></span>
+    </div>
+    <h3>Eigene Strecke</h3>
+    <p class="muted">Strecke suchen (OpenStreetMap) oder im Radar-Widget per Rechtsklick bzw. langem Tippen auf die Karte setzen.</p>
+    <div class="row-btns">
+      <input id="track-search" placeholder="z. B. Kerpen Kartbahn, Circuito Viterbo" class="grow">
+      <button type="button" id="btn-track-search" class="btn ghost">Suchen</button>
+    </div>
+    <ul id="track-results" class="plain-list"></ul>
+    <h3>Daten</h3>
+    <div class="row-btns">
+      <button type="button" id="btn-export" class="btn ghost">Sichern (JSON)</button>
+      <label class="btn ghost" for="import-json">Wiederherstellen</label>
+      <input id="import-json" type="file" accept=".json,application/json" hidden>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="save">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Zeitplan bearbeiten -->
+<dialog id="dlg-edit" class="dlg wide">
+  <form method="dialog" id="edit-form">
+    <h2>Zeitplan bearbeiten <span id="edit-date" class="muted"></span></h2>
+    <div class="table-wrap">
+      <table class="edit-table">
+        <thead><tr><th>Tag</th><th>Von</th><th>Bis</th><th title="Vorstart schließt">Vorstart</th><th>Art</th><th>Titel</th><th>Klasse</th><th title="Erinnern">🔔</th><th></th></tr></thead>
+        <tbody id="edit-rows"></tbody>
+      </table>
+    </div>
+    <div class="row-btns">
+      <button type="button" id="btn-row-add" class="btn ghost">Zeile hinzufügen</button>
+      <button type="button" id="btn-day-clear" class="btn ghost danger">Tag leeren</button>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="save">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Zeitplan importieren -->
+<dialog id="dlg-import" class="dlg wide">
+  <form method="dialog" id="import-form">
+    <h2>Zeitplan übernehmen <span id="import-date" class="muted"></span></h2>
+    <div class="import-src">
+      <div>
+        <h3>PDF, Foto oder Screenshot</h3>
+        <p class="muted">Zeitplan als PDF aus Sportity, Foto vom Aushang oder Screenshot. Mehrtägige Pläne werden auf die Tage verteilt.</p>
+        <label class="btn primary" for="import-photo">Datei wählen</label>
+        <input id="import-photo" type="file" accept="image/*,application/pdf,.pdf" hidden>
+        <img id="import-preview" class="import-preview" alt="" hidden>
+      </div>
+      <div>
+        <h3>Text einfügen</h3>
+        <p class="muted">Zum Beispiel aus Sportity oder einem PDF kopiert. Eine Zeile pro Termin, mit Uhrzeit.</p>
+        <textarea id="import-text" rows="8" placeholder="08:00 - 08:30 Papierabnahme&#10;08:45 Fahrerbesprechung&#10;09:10 - 09:20 Freies Training OK Junior"></textarea>
+        <div class="row-btns">
+          <button type="button" id="btn-parse" class="btn ghost">Auswerten</button>
+          <button type="button" id="btn-parse-ai" class="btn ghost" hidden>Mit Claude auswerten</button>
+        </div>
+      </div>
+    </div>
+    <p id="import-status" class="muted" aria-live="polite"></p>
+    <div id="import-redate" class="row-btns redate" hidden>
+      <span>Das Datum im Plan liegt in der Vergangenheit. Alle Zeilen verschieben, erster Tag:</span>
+      <input type="date" id="redate-day">
+      <button type="button" id="btn-redate" class="btn small primary">Verschieben</button>
+    </div>
+    <div class="table-wrap">
+      <table class="edit-table">
+        <thead><tr><th>Tag</th><th>Von</th><th>Bis</th><th title="Vorstart schließt">Vorstart</th><th>Art</th><th>Titel</th><th>Klasse</th><th title="Erinnern">🔔</th><th></th></tr></thead>
+        <tbody id="import-rows"></tbody>
+      </table>
+    </div>
+    <div class="dlg-actions">
+      <label class="check"><input type="checkbox" id="import-replace" checked> Bestehenden Plan des Tages ersetzen</label>
+      <button class="btn" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="save">Übernehmen</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="tips.js"></script>
+<script src="quicktip.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="tracks.js"></script>
+<script src="entries.js"></script>
+<script src="dashboard.js"></script>
+<!--APP-END-->
+</body>
+</html>
